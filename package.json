@@ -9,13 +9,16 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:my-extension.command",
+    "onLanguage:markdown"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "docu.helloWorld",
-        "title": "Hello World"
+        "command": "myExtension.handleSelection",
+        "title": "Handle Selection"
       }
     ]
   },
