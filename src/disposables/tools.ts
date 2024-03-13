@@ -6,8 +6,8 @@ export function isDocuFile(editor?: vscode.TextEditor): boolean {
   }
   const document = editor.document;
   return (
-    document.languageId === "docu" || document.fileName.endsWith(".docu")
+    document.languageId === "docu" || document.fileName.endsWith(".docu.md")
   );
 }
 
-export const docuSelector: vscode.DocumentSelector = { language: 'plaintext', scheme: 'file', pattern: '**/*.docu' };
+export const docuSelector: vscode.DocumentSelector = { language: 'plaintext', scheme: 'file', pattern: '**/*.docu.md' };

@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 export async function generateMarkdownFile(editor: vscode.TextEditor) {
+  return;
   const document = editor.document;
   // remove the extention from the file name:
   const oldFileName = document.fileName.replace(/\.[^/.]+$/, "");

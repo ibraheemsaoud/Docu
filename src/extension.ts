@@ -11,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
     textChangedDisposable,
     saveDisposable,
     backSlashDisposable(context),
-    textSelectionDisposable(context)
+    textSelectionDisposable(context),
   );
 }
 
