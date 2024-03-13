@@ -10,15 +10,14 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:my-extension.command",
-    "onLanguage:markdown"
+    "*"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "myExtension.handleSelection",
-        "title": "Handle Selection"
+        "command": "myExtension.linkToCode",
+        "title": "Link to code in GitHub"
       }
     ]
   },

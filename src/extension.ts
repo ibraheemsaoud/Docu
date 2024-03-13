@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 import { saveDisposable } from "./disposables/saveDisposable";
-import { backSlashDisposable } from "./disposables/backslashDisposable";
 import { textChangedDisposable } from "./disposables/textChangedDisposable";
+import { textSelectionDisposable } from "./disposables/textSelection/textSelectionDisposable";
+import { backSlashDisposable } from "./disposables/textSelection/backslashDisposable";
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('Congratulations, your extension "my-extension" is now active!');
@@ -9,7 +10,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     textChangedDisposable,
     saveDisposable,
-    backSlashDisposable
+    backSlashDisposable(context),
+    textSelectionDisposable(context)
   );
 }
 
