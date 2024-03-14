@@ -1,41 +1,59 @@
 import * as vscode from "vscode";
 import * as cp from "child_process";
 import * as url from "url";
+import {
+  ISelectedLines,
+  getGlobalState,
+  updateSelectedLines,
+} from "../../tools/globalState";
 
 export const textSelectionDisposable = (context: vscode.ExtensionContext) => {
   return vscode.window.onDidChangeTextEditorSelection(async (event) => {
-    const selection = event.selections;
+    const shouldSelectLines = getGlobalState(context).shouldSelectLines;
 
-    if (context.globalState.get("shouldSelectLines") !== true) {
+    if (
+      shouldSelectLines.activated !== true ||
+      shouldSelectLines.initiatingDocuFile ===
+        vscode.window.activeTextEditor?.document.fileName
+    ) {
       return;
     }
 
+    const selection = event.selections;
+
     // once text is selected, we should generate a permalink to it (on github)
     if (selection.length > 0) {
+      const startOfLine = new vscode.Position(selection[0].start.line, 0);
+      const endOfLine = new vscode.Position(
+        selection[0].end.line,
+        vscode.window.activeTextEditor?.document.lineAt(selection[0].end.line)
+          .text.length || 0
+      );
       const start = selection[0].start.line;
       const end = selection[0].end.line;
 
-      const selectedText = vscode.window.activeTextEditor?.document.getText(
-        new vscode.Range(selection[0].start, selection[0].end)
-      );
+      const selectedText =
+        vscode.window.activeTextEditor?.document.getText(
+          new vscode.Range(startOfLine, endOfLine)
+        ) || "";
 
       const permalink = await getCurrentFileGitHubPermalink();
+      const selectedLines: ISelectedLines = {
+        text: selectedText,
+        permalink: permalink || "",
+        file: vscode.window.activeTextEditor?.document.fileName || "",
+        startLine: start,
+        endLine: end,
+      };
 
-      console.log("selectedText", selectedText);
-      console.log("permalink", `${permalink}#L${start + 1}-L${end + 1}`);
-
-      context.globalState.update("selectedText", selectedText);
       if (start === end) {
-        context.globalState.update("permalink", `${permalink}#L${start + 1}`);
+        selectedLines.permalink = `${permalink}#L${start + 1}`;
       } else {
-        context.globalState.update(
-          "permalink",
-          `${permalink}#L${start + 1}-L${end + 1}`
-        );
+        selectedLines.permalink = `${permalink}#L${start + 1}-L${end + 1}`;
       }
-      // return [selectedText, `${permalink}#L${start}-L${end}`];
+
+      updateSelectedLines(context, selectedLines);
     }
-    // return [undefined, undefined];
   });
 };
 

@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
-
-const slashType = {
-  LinkToCode: "Type 1",
-  C: "Type 2",
-};
+import { BACK_SLASH_CODE_SNIPPET, slashType } from "./slash.const";
+import {
+  updateSelectedLines,
+  updateShouldSelectLines,
+} from "../tools/globalState";
 
 export class SlashProvider implements vscode.CompletionItemProvider {
   private context: vscode.ExtensionContext;
@@ -14,15 +14,14 @@ export class SlashProvider implements vscode.CompletionItemProvider {
   provideCompletionItems(
     document: vscode.TextDocument,
     position: vscode.Position,
-    token: vscode.CancellationToken
+    _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.CompletionItem[]> {
     const options = [
       {
-        label: "Option 1",
-        insertText: "Text for Option 1",
+        label: "Code Snippet",
+        insertText: BACK_SLASH_CODE_SNIPPET,
         type: slashType.LinkToCode,
       },
-      { label: "Option 2", insertText: "Text for Option 2", type: slashType.C },
     ];
     return options.map((option) => {
       const completionItem = new vscode.CompletionItem(
@@ -30,13 +29,21 @@ export class SlashProvider implements vscode.CompletionItemProvider {
         vscode.CompletionItemKind.Function
       );
       if (option.type === slashType.LinkToCode) {
-        completionItem.detail = "Link to code";
+        completionItem.detail = "Select snippet from other code files";
+
+        updateSelectedLines(this.context, false);
+        updateShouldSelectLines(this.context, {
+          initiatingDocuFile: document.fileName,
+          activated: true,
+          line: position.line,
+          character: position.character,
+        });
       }
+
       const insertText = new vscode.SnippetString(option.insertText);
       completionItem.insertText = insertText;
       completionItem.range = new vscode.Range(position, position);
-      // completionItem.insertTextFormat = vscode.InsertTextFormat.Snippet;
-      this.context.globalState.update("shouldSelectLines", true);
+
       return completionItem;
     });
   }

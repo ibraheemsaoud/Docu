@@ -10,4 +10,4 @@ export function isDocuFile(editor?: vscode.TextEditor): boolean {
   );
 }
 
-export const docuSelector: vscode.DocumentSelector = { language: 'plaintext', scheme: 'file', pattern: '**/*.docu.md' };
+export const docuSelector: vscode.DocumentSelector = { language: '*', scheme: 'file', pattern: '**/*.docu.md' };
