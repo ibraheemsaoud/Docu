@@ -7,6 +7,7 @@ import {
   updateSelectedLines,
   updateShouldSelectLines,
 } from "./disposables/tools/globalState";
+import { docuEditorProvider } from "./disposables/docuEditor/docuEditor";
 
 export function activate(context: vscode.ExtensionContext) {
   updateShouldSelectLines(context, false);
@@ -18,6 +19,8 @@ export function activate(context: vscode.ExtensionContext) {
     backSlashDisposable(context),
     textSelectionDisposable(context)
   );
+
+  context.subscriptions.push(docuEditorProvider.register(context));
 }
 
 export function deactivate() {}

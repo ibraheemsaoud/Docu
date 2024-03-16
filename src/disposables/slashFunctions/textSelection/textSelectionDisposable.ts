@@ -12,7 +12,9 @@ export const textSelectionDisposable = (context: vscode.ExtensionContext) => {
     const shouldSelectLines = getGlobalState(context).shouldSelectLines;
 
     if (
+      // not active
       shouldSelectLines.activated !== true ||
+      // is on the file that initiated the selection
       shouldSelectLines.initiatingDocuFile ===
         vscode.window.activeTextEditor?.document.fileName
     ) {
