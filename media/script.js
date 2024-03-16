@@ -8,14 +8,6 @@ const vscode = acquireVsCodeApi();
   // Get a reference to the VS Code webview api.
   // We use this API to post messages back to our extension.
 
-  // @ts-ignore
-  // const vscode = acquireVsCodeApi();
-
-  const errorContainer = document.createElement("div");
-  document.body.appendChild(errorContainer);
-  errorContainer.className = "error";
-  errorContainer.style.display = "none";
-
   const contentContainer =
     document.querySelector(".content") || document.createElement("div");
 
@@ -26,25 +18,6 @@ const vscode = acquireVsCodeApi();
     if (!text) {
       text = "";
     }
-
-    errorContainer.style.display = "none";
-
-    // the text comes in MD format + some custom tags
-    // like <LinkToVSCode path="/src/screens/Profile/Profile.tsx" line="22">
-    // and that should generate a button that when clicked will open the file in vscode
-    // but the normal text should be appeneded
-
-    // @ts-ignore
-    window.vscode = vscode;
-    // @ts-ignore
-    window.goToVsCode = function (path, line) {
-      // @ts-ignore
-      window.vscode.postMessage({
-        type: "goToVsCode",
-        fileName: path,
-        lineNumber: line,
-      });
-    };
 
     contentContainer.innerHTML = "";
 
@@ -59,15 +32,7 @@ const vscode = acquireVsCodeApi();
       if (matches) {
         const path = matches[1];
         const line = matches[2];
-        // vscode.postMessage({
-        //   type: "goToVsCode",
-        //   fileName: path,
-        //   lineNumber: line,
-        // });
-        const button = `
-        <div class="pre-code">${path} - Line: ${line}
-          <button id="1" class="action">Go to code</button>
-        </div>`;
+        const button = `<div class="pre-code">${path} - Line: ${line}<button id="1" class="action">Go to code</button></div>`;
         contentContainer.innerHTML += button;
         LinkBackToVSCodeButtons.push({ id: LinkBackToVSCodeId, path, line });
         LinkBackToVSCodeId++;
@@ -107,6 +72,14 @@ const vscode = acquireVsCodeApi();
 
         return;
     }
+  });
+
+  // @ts-ignore
+  contentContainer.addEventListener("input", (event) => {
+    vscode.postMessage({
+      type: "edit",
+      text: contentContainer.innerHTML,
+    });
   });
 
   // Webviews are normally torn down when not visible and re-created when they become visible again.

@@ -42,8 +42,7 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
         langPrefix: "hljs language-",
         highlight(code, lang, info) {
           //@ts-ignore
-          const language = hljs.getLanguage(lang).name || "plaintext";
-          console.log(language);
+          const language = hljs.getLanguage(lang)?.name || "plaintext";
           //@ts-ignore
           return hljs.highlight(code, { language }).value;
         },
@@ -83,6 +82,10 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
       switch (e.type) {
         case "goToVsCode":
           this.goToVsCode(e.fileName, e.lineNumber);
+          return;
+        case "edit":
+          console.log(e.text);
+          // this.updateTextDocument(document, e.text);
           return;
       }
     });
@@ -132,33 +135,11 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
 
 				<title>Docu-ment</title>
 			</head>
-			<body>
-				<div class="content">
-				test
-				</div>
-				
-				<script nonce="${nonce}" src="${scriptUri}"></script>
+			<body class="content" contenteditable="true">				
 			</body>
+      <script nonce="${nonce}" src="${scriptUri}"></script>
 			</html>`;
   }
-
-  /**
-   * Add a new scratch to the current document.
-   */
-  // private addNewScratch(document: vscode.TextDocument) {
-  // 	const json = this.getDocumentAsJson(document);
-  // 	const character = docuEditorProvider.scratchCharacters[Math.floor(Math.random() * docuEditorProvider.scratchCharacters.length)];
-  // 	json.scratches = [
-  // 		...(Array.isArray(json.scratches) ? json.scratches : []),
-  // 		{
-  // 			id: getNonce(),
-  // 			text: character,
-  // 			created: Date.now(),
-  // 		}
-  // 	];
-
-  // 	return this.updateTextDocument(document, json);
-  // }
 
   private goToVsCode(fileName: string, lineNumber?: number) {
     if (vscode.workspace.workspaceFolders?.length) {
@@ -180,16 +161,17 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
   /**
    * Write out the json to a given document.
    */
-  // private updateTextDocument(document: vscode.TextDocument, json: any) {
-  // 	const edit = new vscode.WorkspaceEdit();
+  private updateTextDocument(document: vscode.TextDocument, text: string) {
+    const edit = new vscode.WorkspaceEdit();
 
-  // 	// Just replace the entire document every time for this example extension.
-  // 	// A more complete extension should compute minimal edits instead.
-  // 	edit.replace(
-  // 		document.uri,
-  // 		new vscode.Range(0, 0, document.lineCount, 0),
-  // 		JSON.stringify(json, null, 2));
+    // Just replace the entire document every time for this example extension.
+    // A more complete extension should compute minimal edits instead.
+    edit.replace(
+      document.uri,
+      new vscode.Range(0, 0, document.lineCount, 0),
+      text
+    );
 
-  // 	return vscode.workspace.applyEdit(edit);
-  // }
+    return vscode.workspace.applyEdit(edit);
+  }
 }
