@@ -1,13 +1,45 @@
 body {
 	justify-content: center;
 	align-items: center;
-	margin: 1em 2em;
+	margin: 0;
+	padding: 0;
 	background-image: url(./sand.jpg);
 	background-repeat: repeat;
 }
 
 body.vscode-dark {
 	background-image: url(./sand-dark.jpg);
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px;
+	background-color: #0167ff;
+	color: white;
+	font-size: 24px;
+	font-weight: bold;
+
+	.action {
+		border: 1px solid white;
+		padding: 4px 8px;
+		border-radius: 4px;
+		background-color: white;
+		color: #0167ff;
+	}
+}
+
+button:disabled {
+	background-color: #ccc!important;
+	color: #666!important;
+}
+
+.content {
+	margin: 0;
+	padding: 0;
+	border: 0!important;
+	outline: 0!important;
 }
 
 .pre-code {

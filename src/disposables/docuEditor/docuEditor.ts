@@ -115,6 +115,7 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
 
     // Use a nonce to whitelist which scripts can be run
     const nonce = getNonce();
+    const dirty = false;
 
     return /* html */ `
 			<!DOCTYPE html>
@@ -134,7 +135,12 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
 
 				<title>Docu-ment</title>
 			</head>
-			<body class="content" contenteditable="true">				
+			<body>
+        <div class="header">
+          Control Toolbar <Button class="action" disabled="${!dirty}" onclick="">Save</Button>
+        </div> 
+        <div class="content">
+        </div>
 			</body>
       <script nonce="${nonce}" src="${scriptUri}"></script>
 			</html>`;
