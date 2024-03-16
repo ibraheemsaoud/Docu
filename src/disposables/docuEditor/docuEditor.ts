@@ -84,8 +84,7 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
           this.goToVsCode(e.fileName, e.lineNumber);
           return;
         case "edit":
-          console.log(e.text);
-          // this.updateTextDocument(document, e.text);
+          this.updateTextDocument(document, e.text);
           return;
       }
     });

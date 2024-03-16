@@ -61,15 +61,8 @@ const vscode = acquireVsCodeApi();
     const message = event.data; // The json data that the extension sent
     switch (message.type) {
       case "update":
-        const text = message.text;
-
-        // Update our webview's content
-        updateContent(text);
-
-        // Then persist state information.
-        // This state is returned in the call to `vscode.getState` below when a webview is reloaded.
-        vscode.setState({ text });
-
+        updateContent(message.text);
+        vscode.setState({ text: message.text });
         return;
     }
   });
