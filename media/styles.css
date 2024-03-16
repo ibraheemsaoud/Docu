@@ -10,56 +10,22 @@ body.vscode-dark {
 	background-image: url(./sand-dark.jpg);
 }
 
-.notes {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, 100px);
-	grid-template-rows: repeat(auto-fill, 100px);
-	grid-gap: 2em;
-	justify-content: center;
-}
-
-.note {
+.pre-code {
+	border: 1px solid blue;
+	background: #0167ff42;
+	color: white;
+	border-radius: 8px;
+	border-bottom: 0;
+	margin-bottom: -16px;
+	padding: 8px;
 	display: flex;
-	flex-direction: column;
-	border-radius: 5px;
-	background-color: var(--vscode-editor-background);
-	text-align: center;
-	padding: 0.6em;
-	position: relative;
-	overflow: hidden;
+	justify-content: space-between;
 }
 
-.note .text {
-	flex: 1;
-	font-size: 3em;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.note .created {
-	font-style: italic;
-	font-size: 0.75em;
-}
-
-.add-button {
-	height: 100px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.delete-button {
-	position: absolute;
-	top: 0;
-	right: 0;
-	display: none;
-}
-
-.delete-button:before {
-	content: 'delete';
-}
-
-.note:hover .delete-button {
-	display: block;
+.action {
+	border: 1px solid blue;
+	padding: 4px 8px;
+	border-radius: 4px;
+	background-color: white;
+	color: blue;
 }

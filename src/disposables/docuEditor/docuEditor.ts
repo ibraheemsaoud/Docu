@@ -42,9 +42,10 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
         langPrefix: "hljs language-",
         highlight(code, lang, info) {
           //@ts-ignore
-          const language = hljs.getLanguage(lang) ? lang : "plaintext";
+          const language = hljs.getLanguage(lang).name || "plaintext";
+          console.log(language);
           //@ts-ignore
-          return hljs.highlight(code, { language: lang }).value;
+          return hljs.highlight(code, { language }).value;
         },
       })
     );
@@ -81,7 +82,7 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
     webviewPanel.webview.onDidReceiveMessage((e) => {
       switch (e.type) {
         case "goToVsCode":
-          this.goToVsCode(e.fileName);
+          this.goToVsCode(e.fileName, e.lineNumber);
           return;
       }
     });
@@ -159,13 +160,20 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
   // 	return this.updateTextDocument(document, json);
   // }
 
-  private goToVsCode(fileName: string) {
+  private goToVsCode(fileName: string, lineNumber?: number) {
     if (vscode.workspace.workspaceFolders?.length) {
       const workspaceRoot = vscode.workspace.workspaceFolders[0].uri.fsPath;
       const absolutePath = path.resolve(workspaceRoot, fileName);
 
       const uri = vscode.Uri.file(absolutePath);
-      vscode.window.showTextDocument(uri);
+      vscode.window.showTextDocument(uri).then((editor) => {
+        if (lineNumber) {
+          const line = lineNumber - 1;
+          const range = editor.document.lineAt(line).range;
+          editor.selection = new vscode.Selection(range.start, range.end);
+          editor.revealRange(range);
+        }
+      });
     }
   }
 

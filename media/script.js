@@ -48,6 +48,9 @@ const vscode = acquireVsCodeApi();
 
     contentContainer.innerHTML = "";
 
+    const LinkBackToVSCodeButtons = [];
+    let LinkBackToVSCodeId = 1;
+
     let lines = text.split("\n");
     lines = lines.map((line) => {
       const matches = line.match(
@@ -61,9 +64,13 @@ const vscode = acquireVsCodeApi();
         //   fileName: path,
         //   lineNumber: line,
         // });
-
-        const button = `<button id="1">${path}</button>`;
+        const button = `
+        <div class="pre-code">${path} - Line: ${line}
+          <button id="1" class="action">Go to code</button>
+        </div>`;
         contentContainer.innerHTML += button;
+        LinkBackToVSCodeButtons.push({ id: LinkBackToVSCodeId, path, line });
+        LinkBackToVSCodeId++;
         return button;
       } else {
         return line;
@@ -72,13 +79,16 @@ const vscode = acquireVsCodeApi();
 
     contentContainer.innerHTML = lines.join("\n");
 
-    // @ts-ignore
-    document.getElementById(`1`).addEventListener('click', () => {
-      vscode.postMessage({
-        type: "goToVsCode",
-        fileName: document.getElementById(`1`)?.innerText,
+    for (const button of LinkBackToVSCodeButtons) {
+      // @ts-ignore
+      document.getElementById(`${button.id}`).addEventListener("click", () => {
+        vscode.postMessage({
+          type: "goToVsCode",
+          fileName: button.path,
+          lineNumber: button.line,
+        });
       });
-    });
+    }
   }
 
   // Handle messages sent from the extension to the webview
