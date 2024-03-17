@@ -31,18 +31,25 @@ body.vscode-dark {
 }
 
 button:disabled {
-	background-color: #ccc!important;
-	color: #666!important;
+	background-color: #ccc !important;
+	color: #666 !important;
 }
 
 .content {
 	margin: 0;
 	padding: 0;
-	border: 0!important;
-	outline: 0!important;
+	border: 0 !important;
+	outline: 0 !important;
 }
 
-.pre-code {
+LinkToVSCode {
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+LinkToVSCodeHeader {
 	border: 1px solid blue;
 	background: #0167ff42;
 	color: white;
@@ -50,8 +57,20 @@ button:disabled {
 	border-bottom: 0;
 	margin-bottom: -16px;
 	padding: 8px;
+	width: 100%;
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
+}
+
+pre,
+code {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+
+pre {
+	background-color: #f4f4f4;
 }
 
 .action {

@@ -2,7 +2,8 @@ import * as vscode from "vscode";
 import { getNonce } from "./util";
 import { Marked } from "marked";
 import { markedHighlight } from "marked-highlight";
-import * as hljs from "./highlight.min";
+// @ts-ignore
+import * as hljs from "./highlight.min.js";
 import * as path from "path";
 
 /**
@@ -12,13 +13,11 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
     const provider = new docuEditorProvider(context);
     const providerRegistration = vscode.window.registerCustomEditorProvider(
-      docuEditorProvider.viewType,
+      "docu.docuDisplay",
       provider
     );
     return providerRegistration;
   }
-
-  private static readonly viewType = "docu.docuDisplay";
 
   constructor(private readonly context: vscode.ExtensionContext) {}
 
@@ -122,11 +121,6 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
-
-				<!--
-				Use a content security policy to only allow loading images from https or from our extension directory,
-				and only allow scripts that have a specific nonce.
-				-->
 				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource}; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -162,6 +156,29 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
       });
     }
   }
+
+  // private generate_json_from_doc(document: vscode.TextDocument) {
+  //   const lines = document.getText().split("\n");
+  //   const json = {};
+  //   let currentKey = "";
+  //   let currentValue = "";
+  //   for (let i = 0; i < lines.length; i++) {
+  //     const line = lines[i];
+  //     if (line.startsWith("#")) {
+  //       currentKey = line.replace("#", "").trim();
+  //       json[currentKey] = [];
+  //     } else if (line.startsWith("##")) {
+  //       currentValue = line.replace("##", "").trim();
+  //       json[currentKey].push({ [currentValue]: [] });
+  //     } else if (line.startsWith("###")) {
+  //       currentValue = line.replace("###", "").trim();
+  //       json[currentKey][json[currentKey].length - 1][currentValue] = [];
+  //     } else {
+  //       json[currentKey][json[currentKey].length - 1][currentValue].push(line);
+  //     }
+  //   }
+  //   return json;
+  // }
 
   /**
    * Write out the json to a given document.

@@ -18,6 +18,7 @@ const vscode = acquireVsCodeApi();
     if (!text) {
       text = "";
     }
+    text = text.replace(/<LinkToVSCodeHeader(.*?)>([\s\S]*?)<\/LinkToVSCodeHeader>/g, "");
 
     contentContainer.innerHTML = "";
 
@@ -25,20 +26,32 @@ const vscode = acquireVsCodeApi();
     let LinkBackToVSCodeId = 1;
 
     let lines = text.split("\n");
+    let allowEdit = true;
+
     lines = lines.map((line) => {
-      const matches = line.match(
-        /<LinkToVSCode path="([^"]+)" line="([^"]+)" \/>/
+      const matchStartLTVSC = line.match(
+        /<LinkToVSCode path="([^"]+)" line="([^"]+)">/
       );
-      if (matches) {
-        const path = matches[1];
-        const line = matches[2];
-        const button = `<div class="pre-code">${path} - Line: ${line}<button id="1" class="action">Go to code</button></div>`;
-        contentContainer.innerHTML += button;
+      const matchEndLTVSC = line.match(/<\/LinkToVSCode>/);
+      if (matchStartLTVSC) {
+        allowEdit = false;
+        const path = matchStartLTVSC[1];
+        const line = matchStartLTVSC[2];
+        let linkToVsCode = `<LinkToVSCode path="${path}" line="${line}">`;
+        linkToVsCode += `<LinkToVSCodeHeader>${path} - Line: ${line}`;
+        linkToVsCode += `<button id="${LinkBackToVSCodeId}" class="action">Go to code</button>`;
+        linkToVsCode += `</LinkToVSCodeHeader>`;
         LinkBackToVSCodeButtons.push({ id: LinkBackToVSCodeId, path, line });
         LinkBackToVSCodeId++;
-        return button;
-      } else {
+        return linkToVsCode;
+      } else if (matchEndLTVSC) {
+        allowEdit = true;
         return line;
+      } else {
+        if (!allowEdit) {
+          return line;
+        }
+        return `<div class="markdown" contenteditable="true">${line}</div>`;
       }
     });
 
