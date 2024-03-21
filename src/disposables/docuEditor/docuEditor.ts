@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "./util";
-import { Marked } from "marked";
-import { markedHighlight } from "marked-highlight";
+// import { Marked } from "marked";
+// import { markedHighlight } from "marked-highlight";
 // @ts-ignore
 import * as hljs from "./highlight.min.js";
 import * as path from "path";
@@ -37,23 +37,23 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
     };
     webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
 
-    const marked = new Marked(
-      //@ts-ignore
-      markedHighlight({
-        langPrefix: "hljs language-",
-        highlight(code, lang, info) {
-          //@ts-ignore
-          const language = hljs.getLanguage(lang)?.name || "plaintext";
-          //@ts-ignore
-          return hljs.highlight(code, { language }).value;
-        },
-      })
-    );
+    // const marked = new Marked(
+    //   //@ts-ignore
+    //   markedHighlight({
+    //     langPrefix: "hljs language-",
+    //     highlight(code, lang, info) {
+    //       //@ts-ignore
+    //       const language = hljs.getLanguage(lang)?.name || "plaintext";
+    //       //@ts-ignore
+    //       return hljs.highlight(code, { language }).value;
+    //     },
+    //   })
+    // );
 
     function updateWebview() {
       webviewPanel.webview.postMessage({
         type: "update",
-        text: marked.parse(document.getText()).toString(),
+        text: document.getText(),
       });
     }
 
@@ -80,13 +80,22 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
 
     // Receive message from the webview.
     webviewPanel.webview.onDidReceiveMessage((e) => {
-      console.log(e);
       switch (e.type) {
+        case "readyToListen":
+          updateWebview();
+          return;
         case "goToVsCode":
           this.goToVsCode(e.fileName, e.lineNumber);
           return;
         case "edit":
           this.updateTextDocument(document, e.text);
+          return;
+        case "save":
+          console.log("save");
+          // vscode.workspace.fs.writeFile(
+          //   document.uri,
+          //   new TextEncoder().encode(e.text)
+          // );
           return;
       }
     });
@@ -119,7 +128,6 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
 
     // Use a nonce to whitelist which scripts can be run
     const nonce = getNonce();
-    const dirty = false;
 
     return /* html */ `
 			<!DOCTYPE html>
@@ -134,16 +142,8 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
 
 				<title>Docu-ment</title>
 			</head>
-			<body>
-        <div class="content">
-        </div>
-        <div id="root">
-        </div>
+			<body id="root">
 			</body>
-      <script nonce="${nonce}">
-        const vscode = acquireVsCodeApi();
-        window.vscode = vscode;
-      </script>
       <script nonce="${nonce}" src="${scriptUri}"></script>
 			</html>`;
   }

@@ -4,46 +4,81 @@ import "@blocknote/react/style.css";
 import { useEffect, useState } from "react";
 
 function App() {
-  const [content, setContent] = useState("");
+  // this content is stored in MarkDown
   const [localContent, setLocalContent] = useState("");
   const [isDirty, setIsDirty] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [hasLostSync, setHasLostSync] = useState(false);
-
-  const EventListener = (event) => {
-    const message = event.data; // The json data that the extension sent
-    switch (message.type) {
-      case "update":
-        if (!isDirty) {
-          setLocalContent(message.text);
-          setHasLostSync(true);
-        }
-        setContent(message.text);
-        window.vscode.setState({ text: message.text });
-        return;
-      default:
-        console.warn("Unknown message type", message.type);
-    }
-  };
-
-  useEffect(() => {
-    if (window.vscode) {
-      window.addEventListener("message", EventListener);
-    } else {
-      console.warn("No 'vscode' global variable found");
-    }
-  }, []);
+  const [vscode, setVscode] = useState(null);
 
   // Creates a new editor instance.
   const editor = useCreateBlockNote();
+
+  useEffect(() => {
+    // eslint-disable-next-line no-undef
+    const vscode = acquireVsCodeApi();
+    if (!vscode) {
+      console.error("No vscode found");
+      return;
+    }
+    setVscode(vscode);
+  }, []);
+
+  useEffect(() => {
+    async function setBlocks(content) {
+      const blocks = await editor.tryParseMarkdownToBlocks(content);
+      editor.replaceBlocks(editor.document, blocks);
+    }
+
+    const EventListener = (event) => {
+      const message = event.data; // The json data that the extension sent
+      switch (message.type) {
+        case "update":
+          setHasLoaded(true);
+          vscode.setState({ text: message.text });
+
+          if (!isDirty) {
+            setLocalContent(message.text);
+            setBlocks(message.text);
+          } else {
+            setHasLostSync(true);
+          }
+          return;
+        default:
+          console.warn("Unknown message type", message.type);
+      }
+    };
+
+    if (vscode) {
+      window.removeEventListener("message", EventListener);
+      window.addEventListener("message", EventListener);
+      vscode.postMessage({ type: "readyToListen" });
+      return () => window.removeEventListener("message", EventListener);
+    }
+  }, [vscode, isDirty, editor, hasLoaded]);
 
   const onTextChange = async () => {
     // Converts the editor's contents from Block objects to Markdown and store to state.
     const markdown = await editor.blocksToMarkdownLossy(editor.document);
     setLocalContent(markdown);
+
+    if (hasLoaded) {
+      vscode.postMessage({
+        type: "edit",
+        text: markdown,
+      });
+    }
+
+    const content = vscode.getState("content");
+    if (content !== markdown) {
+      setIsDirty(true);
+    } else {
+      setHasLostSync(false);
+    }
   };
 
   const onSave = () => {
-    window.vscode.postMessage({
+    vscode.postMessage({
       type: "save",
       text: localContent,
     });
@@ -63,15 +98,11 @@ function App() {
             now.
           </span>
         )}
-        <button class="action" disabled={isDirty} onclick={onSave}>
+        <button class="action" disabled={!isDirty} onClick={onSave}>
           Save
         </button>
       </div>
-      <BlockNoteView
-        editor={editor}
-        defaultValue={editor.tryParseMarkdownToBlocks(content)}
-        onChange={onTextChange}
-      />
+      <BlockNoteView editor={editor} onChange={onTextChange} />
     </div>
   );
 }
