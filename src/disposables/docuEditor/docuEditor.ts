@@ -5,6 +5,8 @@ import { markedHighlight } from "marked-highlight";
 // @ts-ignore
 import * as hljs from "./highlight.min.js";
 import * as path from "path";
+// @ts-ignore
+import index from "../../../media/main";
 
 /**
  * Provider for docu Markdown editors.
@@ -78,6 +80,7 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
 
     // Receive message from the webview.
     webviewPanel.webview.onDidReceiveMessage((e) => {
+      console.log(e);
       switch (e.type) {
         case "goToVsCode":
           this.goToVsCode(e.fileName, e.lineNumber);
@@ -97,11 +100,13 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
   private getHtmlForWebview(webview: vscode.Webview): string {
     // Local path to script and css for the webview
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this.context.extensionUri, "media", "script.js")
+      vscode.Uri.joinPath(this.context.extensionUri, "media", "main.js")
     );
-
     const styleResetUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this.context.extensionUri, "media", "styles.css")
+    );
+    const styleMain = webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, "media", "main.css")
     );
 
     const styleCodeUri = webview.asWebviewUri(
@@ -121,21 +126,24 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource}; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 				<link href="${styleResetUri}" rel="stylesheet" />
 				<link href="${styleCodeUri}" rel="stylesheet" />
+				<link href="${styleMain}" rel="stylesheet" />
 
 				<title>Docu-ment</title>
 			</head>
 			<body>
-        <div class="header">
-          Control Toolbar <Button class="action" disabled="${!dirty}" onclick="">Save</Button>
-        </div> 
         <div class="content">
         </div>
+        <div id="root">
+        </div>
 			</body>
+      <script nonce="${nonce}">
+        const vscode = acquireVsCodeApi();
+        window.vscode = vscode;
+      </script>
       <script nonce="${nonce}" src="${scriptUri}"></script>
 			</html>`;
   }
@@ -156,29 +164,6 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
       });
     }
   }
-
-  // private generate_json_from_doc(document: vscode.TextDocument) {
-  //   const lines = document.getText().split("\n");
-  //   const json = {};
-  //   let currentKey = "";
-  //   let currentValue = "";
-  //   for (let i = 0; i < lines.length; i++) {
-  //     const line = lines[i];
-  //     if (line.startsWith("#")) {
-  //       currentKey = line.replace("#", "").trim();
-  //       json[currentKey] = [];
-  //     } else if (line.startsWith("##")) {
-  //       currentValue = line.replace("##", "").trim();
-  //       json[currentKey].push({ [currentValue]: [] });
-  //     } else if (line.startsWith("###")) {
-  //       currentValue = line.replace("###", "").trim();
-  //       json[currentKey][json[currentKey].length - 1][currentValue] = [];
-  //     } else {
-  //       json[currentKey][json[currentKey].length - 1][currentValue].push(line);
-  //     }
-  //   }
-  //   return json;
-  // }
 
   /**
    * Write out the json to a given document.

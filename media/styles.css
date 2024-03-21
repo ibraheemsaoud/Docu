@@ -16,7 +16,7 @@ body.vscode-dark {
 	justify-content: space-between;
 	align-items: center;
 	padding: 16px;
-	background-color: #0167ff;
+	/* background-color: #0167ff; */
 	color: white;
 	font-size: 24px;
 	font-weight: bold;
