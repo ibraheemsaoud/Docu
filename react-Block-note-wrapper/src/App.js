@@ -37,11 +37,11 @@ function App() {
           setHasLoaded(true);
           vscode.setState({ text: message.text });
 
-          if (!isDirty) {
+          if (isDirty) {
+            setHasLostSync(true);
+          } else {
             setLocalContent(message.text);
             setBlocks(message.text);
-          } else {
-            setHasLostSync(true);
           }
           return;
         default:
@@ -61,17 +61,18 @@ function App() {
     // Converts the editor's contents from Block objects to Markdown and store to state.
     const markdown = await editor.blocksToMarkdownLossy(editor.document);
     setLocalContent(markdown);
-
-    if (hasLoaded) {
-      vscode.postMessage({
-        type: "edit",
-        text: markdown,
-      });
-    }
-
     const content = vscode.getState("content");
-    if (content !== markdown) {
+
+    if (markdown !== content) {
       setIsDirty(true);
+
+      if (hasLoaded) {
+        vscode.postMessage({
+          type: "edit",
+          text: markdown,
+        });
+      }
+
     } else {
       setHasLostSync(false);
     }
@@ -93,7 +94,6 @@ function App() {
         Docu Toolbar
         {hasLostSync && (
           <span>
-            {" "}
             document is outdated, if you save it will override what is there
             now.
           </span>
