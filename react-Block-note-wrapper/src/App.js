@@ -61,7 +61,7 @@ function App() {
     // Converts the editor's contents from Block objects to Markdown and store to state.
     const markdown = await editor.blocksToMarkdownLossy(editor.document);
     setLocalContent(markdown);
-    const content = vscode.getState("content");
+    const content = vscode.getState("content").text;
 
     if (markdown !== content) {
       setIsDirty(true);
@@ -72,7 +72,6 @@ function App() {
           text: markdown,
         });
       }
-
     } else {
       setHasLostSync(false);
     }
