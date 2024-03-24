@@ -1,17 +1,41 @@
+import {
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  filterSuggestionItems,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
+import {
+  BlockNoteView,
+  SuggestionMenuController,
+  getDefaultReactSlashMenuItems,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import "@blocknote/react/style.css";
 import { useEffect, useState } from "react";
+import {
+  BlockQuote,
+  fixMarkdownForBlockQuote,
+  insertBlockQuote,
+  markdownedBlocksToBlockBlockQuote,
+  normalizeBlockQuoteBlock,
+  swapMarkdownForBlockQuote,
+} from "./CustomComponents/Blockquote/Blockquote";
+
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    // Adds all default blocks.
+    ...defaultBlockSpecs,
+    // Adds the Alert block.
+    blockquote: BlockQuote,
+  },
+});
 
 function App() {
-  // this content is stored in MarkDown
-  const [localContent, setLocalContent] = useState("");
-  const [isDirty, setIsDirty] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [vscode, setVscode] = useState(null);
 
   // Creates a new editor instance.
-  const editor = useCreateBlockNote();
+  const editor = useCreateBlockNote({ schema });
 
   useEffect(() => {
     // eslint-disable-next-line no-undef
@@ -24,8 +48,14 @@ function App() {
   }, []);
 
   useEffect(() => {
-    async function setBlocks(content) {
-      const blocks = await editor.tryParseMarkdownToBlocks(content);
+    async function setBlocks(markdown) {
+      console.log("markdown", markdown)
+      let editedMarkdown = swapMarkdownForBlockQuote(markdown);
+      console.log("editedMarkdown", editedMarkdown)
+      let blocks = await editor.tryParseMarkdownToBlocks(editedMarkdown);
+      // console.log("blocks", blocks)
+      blocks = markdownedBlocksToBlockBlockQuote(blocks);
+      // console.log("markdownedBlocksToBlockBlockQuote", blocks)
       editor.replaceBlocks(editor.document, blocks);
     }
 
@@ -35,11 +65,7 @@ function App() {
         case "update":
           setHasLoaded(true);
           vscode.setState({ text: message.text });
-
-          if (!isDirty) {
-            setLocalContent(message.text);
-            setBlocks(message.text);
-          }
+          setBlocks(message.text);
           return;
         default:
           console.warn("Unknown message type", message.type);
@@ -52,44 +78,43 @@ function App() {
       vscode.postMessage({ type: "readyToListen" });
       return () => window.removeEventListener("message", EventListener);
     }
-  }, [vscode, isDirty, editor, hasLoaded]);
+  }, [vscode, editor, hasLoaded]);
 
   const onTextChange = async () => {
     // Converts the editor's contents from Block objects to Markdown and store to state.
-    const markdown = await editor.blocksToMarkdownLossy(editor.document);
-    setLocalContent(markdown);
+    let document = normalizeBlockQuoteBlock(editor.document);
+    let markdown = await editor.blocksToMarkdownLossy(document);
+    markdown = fixMarkdownForBlockQuote(markdown);
+
     const content = vscode.getState("content").text;
 
-    if (markdown !== content) {
-      setIsDirty(true);
-
-      if (hasLoaded) {
-        vscode.postMessage({
-          type: "edit",
-          text: markdown,
-        });
-      }
+    if (markdown !== content && hasLoaded) {
+      vscode.postMessage({
+        type: "edit",
+        text: markdown,
+      });
     }
   };
-
-  // const onSave = () => {
-  //   vscode.postMessage({
-  //     type: "save",
-  //     text: localContent,
-  //   });
-  //   setIsDirty(false);
-  // };
 
   // Renders the editor instance using a React component.
   return (
     <div>
-      {/* <div class="header">
-        Docu Toolbar
-        <button class="action" disabled={!isDirty} onClick={onSave}>
-          Save
-        </button>
-      </div> */}
-      <BlockNoteView editor={editor} onChange={onTextChange} />
+      <BlockNoteView editor={editor} onChange={onTextChange} slashMenu={false}>
+        {/* Replaces the default Slash Menu. */}
+        <SuggestionMenuController
+          triggerCharacter={"/"}
+          getItems={async (query) =>
+            // Gets all default slash menu items and `insertAlert` item.
+            filterSuggestionItems(
+              [
+                ...getDefaultReactSlashMenuItems(editor),
+                insertBlockQuote(editor),
+              ],
+              query
+            )
+          }
+        />
+      </BlockNoteView>
     </div>
   );
 }

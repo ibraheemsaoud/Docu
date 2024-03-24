@@ -1,0 +1,38 @@
+.blockquote {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  border-radius: 4px;
+  height: 48px;
+  padding: 4px;
+}
+
+.blockquote {
+  background-color: #e6ebff;
+}
+
+[data-color-scheme="dark"] .blockquote {
+  background-color: #203380;
+}
+
+.blockquote-icon-wrapper {
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 12px;
+  margin-right: 12px;
+  height: 18px;
+  width: 18px;
+  user-select: none;
+  cursor: pointer;
+}
+
+.blockquote-icon[data-blockquote-icon-type="info"] {
+  color: #507aff
+}
+
+.inline-content {
+  flex-grow: 1;
+}
