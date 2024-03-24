@@ -90,13 +90,13 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
         case "edit":
           this.updateTextDocument(document, e.text);
           return;
-        case "save":
-          console.log("save");
-          // vscode.workspace.fs.writeFile(
-          //   document.uri,
-          //   new TextEncoder().encode(e.text)
-          // );
-          return;
+        // case "save":
+        //   console.log("save");
+        //   vscode.workspace.fs.writeFile(
+        //     document.uri,
+        //     new TextEncoder().encode(e.text)
+        //   );
+        //   return;
       }
     });
 

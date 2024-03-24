@@ -8,7 +8,6 @@ function App() {
   const [localContent, setLocalContent] = useState("");
   const [isDirty, setIsDirty] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [hasLostSync, setHasLostSync] = useState(false);
   const [vscode, setVscode] = useState(null);
 
   // Creates a new editor instance.
@@ -37,9 +36,7 @@ function App() {
           setHasLoaded(true);
           vscode.setState({ text: message.text });
 
-          if (isDirty) {
-            setHasLostSync(true);
-          } else {
+          if (!isDirty) {
             setLocalContent(message.text);
             setBlocks(message.text);
           }
@@ -72,35 +69,26 @@ function App() {
           text: markdown,
         });
       }
-    } else {
-      setHasLostSync(false);
     }
   };
 
-  const onSave = () => {
-    vscode.postMessage({
-      type: "save",
-      text: localContent,
-    });
-    setIsDirty(false);
-    setHasLostSync(false);
-  };
+  // const onSave = () => {
+  //   vscode.postMessage({
+  //     type: "save",
+  //     text: localContent,
+  //   });
+  //   setIsDirty(false);
+  // };
 
   // Renders the editor instance using a React component.
   return (
     <div>
-      <div class="header">
+      {/* <div class="header">
         Docu Toolbar
-        {hasLostSync && (
-          <span>
-            document is outdated, if you save it will override what is there
-            now.
-          </span>
-        )}
         <button class="action" disabled={!isDirty} onClick={onSave}>
           Save
         </button>
-      </div>
+      </div> */}
       <BlockNoteView editor={editor} onChange={onTextChange} />
     </div>
   );
