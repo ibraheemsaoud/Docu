@@ -12,7 +12,6 @@ import { gfm } from "@milkdown/preset-gfm";
 import { ReactEditor, useEditor } from "@milkdown/react";
 import { listener, listenerCtx } from "@milkdown/plugin-listener";
 import { prism } from "@milkdown/plugin-prism";
-import { menu } from "@milkdown/plugin-menu";
 import { block } from "@milkdown/plugin-block";
 import slash from "./Slash";
 import { cursor } from "@milkdown/plugin-cursor";
@@ -49,7 +48,6 @@ export const Editor = ({ defaultValue, vscode }) => {
         .use(history)
         .use(listener)
         .use(prism)
-        .use(menu)
         .use(block)
         .use(cursor)
         .use(clipboard)
