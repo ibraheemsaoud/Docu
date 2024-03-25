@@ -132,7 +132,9 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
 				<link href="${styleResetUri}" rel="stylesheet" />
 				<link href="${styleCodeUri}" rel="stylesheet" />
 				<link href="${styleMain}" rel="stylesheet" />
-
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" />
+      
 				<title>Docu-ment</title>
 			</head>
 			<body id="root">

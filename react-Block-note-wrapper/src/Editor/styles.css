@@ -1,0 +1,34 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.milkdown-menu-wrapper {
+  position: fixed!important;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.milkdown {
+  height: 100%;
+}
+
+.block-handle {
+  margin-top: 0px;
+  padding-top: 7.5px;
+  padding-bottom: 7.5px;
+  left: 5px !important;
+}
+
+.milkdown .editor>* {
+  margin: 10px 0 !important;
+  padding: 10px 0;
+  padding-left: 20px !important;
+  margin-left: -7.5px !important;
+}
