@@ -1,3 +1,4 @@
+import { commandsCtx, themeManagerCtx } from "@milkdown/core";
 import {
   slashPlugin,
   slash,
@@ -9,34 +10,34 @@ export default slash.configure(slashPlugin, {
   config: (ctx) => {
     // Define a status builder
     return ({ isTopLevel, content, parentNode }) => {
-      // You can only show something at root level
-      if (!isTopLevel) return null;
-
-      // Empty content ? Set your custom empty placeholder !
-      if (!content) {
+      if (!content || content[0] !== "/") {
         return {};
       }
 
-      // Define the placeholder & actions (dropdown items) you want to display depending on content
-      if (content.startsWith("/")) {
-        // Add some actions depending on your content's parent node
-        // if (parentNode.type.name === "customNode") {
-        //   actions.push({
-        //     id: "custom",
-        //     dom: createDropdownItem(ctx.get(), "Custom", "h1"),
-        //     command: () =>
-        //       ctx.get().call(/* Add custom command here */),
-        //     keyword: ["custom"],
-        //     typeName: "heading"
-        //   });
-        // }
+      // You can only show something at root level
+      if (!isTopLevel) return null;
 
-        return content === "/"
-          ? { actions: defaultActions(ctx) }
-          : {
-            actions: defaultActions(ctx, content.slice(1).toLocaleLowerCase())
-          };
-      }
+      const userInput = content.slice(1).toLocaleLowerCase();
+      const actions = defaultActions(ctx, userInput || '');
+      const customActions = [
+        {
+          id: "test",
+          // third param is the icon
+          dom: createDropdownItem(ctx.get(themeManagerCtx), "Test", "h3"),
+          command: () =>
+            ctx.get(commandsCtx).call('TurnIntoHeading', 1),
+          keyword: ["test"],
+          typeName: "test"
+        }
+      ]
+
+      customActions.forEach(action => {
+        if (content === "/" || action.keyword.some(keyword => keyword.includes(userInput))) {
+          actions.push(action);
+        }
+      });
+
+      return { actions }
     };
   }
 });

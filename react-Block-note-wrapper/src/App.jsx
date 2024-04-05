@@ -19,9 +19,11 @@ const App = () => {
     const EventListener = (event) => {
       const message = event.data; // The json data that the extension sent
       switch (message.type) {
+        case "init":
+          setContent(message.text);
+        // eslint-disable-next-line no-fallthrough
         case "update":
           vscode.setState({ text: message.text });
-          setContent(message.text);
           return;
         default:
           console.warn("Unknown message type", message.type);

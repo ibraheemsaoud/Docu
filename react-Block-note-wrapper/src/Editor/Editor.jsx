@@ -18,6 +18,7 @@ import { cursor } from "@milkdown/plugin-cursor";
 import { clipboard } from "@milkdown/plugin-clipboard";
 import { useEffect, useState } from "react";
 import { replaceAll } from "@milkdown/utils";
+import { test } from "./Test";
 
 export const Editor = ({ defaultValue, vscode }) => {
   const [content, setContent] = useState(defaultValue);
@@ -52,6 +53,7 @@ export const Editor = ({ defaultValue, vscode }) => {
         .use(cursor)
         .use(clipboard)
         .use(slash)
+        .use(test)
   );
 
 

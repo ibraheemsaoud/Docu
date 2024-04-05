@@ -17,6 +17,7 @@
     "@milkdown/prose": "6.5.4",
     "@milkdown/react": "6.5.4",
     "@milkdown/theme-nord": "6.5.4",
+    "remark-directive": "^2.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",

@@ -50,9 +50,9 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
     //   })
     // );
 
-    function updateWebview() {
+    function updateWebview(firstTime?: boolean) {
       webviewPanel.webview.postMessage({
-        type: "update",
+        type: firstTime ? "init" : "update",
         text: document.getText(),
       });
     }
@@ -82,7 +82,7 @@ export class docuEditorProvider implements vscode.CustomTextEditorProvider {
     webviewPanel.webview.onDidReceiveMessage((e) => {
       switch (e.type) {
         case "readyToListen":
-          updateWebview();
+          updateWebview(true);
           return;
         case "goToVsCode":
           this.goToVsCode(e.fileName, e.lineNumber);
